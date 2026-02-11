@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rueda del Cariño - Intercambio de Regalos</title>
+  <title>Rueda del Cariño - Sorteo de Regalos</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -60,13 +60,152 @@
       box-shadow: 0 5px 20px rgba(151, 215, 0, 0.4);
     }
 
+    /* Formulario de búsqueda de asiento */
+    .search-section {
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+
+    .search-card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      animation: float-in 0.6s ease-out;
+    }
+
+    @keyframes float-in {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .search-card h2 {
+      font-family: 'Orbitron', sans-serif;
+      color: var(--blue);
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 1.5rem;
+    }
+
+    .search-form {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 1rem;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      font-family: 'Space Mono', monospace;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--lime);
+      box-shadow: 0 0 0 3px rgba(151, 215, 0, 0.1);
+    }
+
+    .search-btn {
+      background: var(--lime);
+      color: var(--blue);
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 10px;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .search-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(151, 215, 0, 0.4);
+    }
+
+    .info-message {
+      background: rgba(151, 215, 0, 0.1);
+      border-left: 4px solid var(--lime);
+      padding: 1rem;
+      border-radius: 8px;
+      color: #333;
+      font-size: 0.9rem;
+    }
+
+    .error-message {
+      background: rgba(255, 0, 0, 0.1);
+      border-left: 4px solid #ff0000;
+      padding: 1rem;
+      border-radius: 8px;
+      color: #c00;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    .already-played {
+      background: rgba(255, 165, 0, 0.1);
+      border-left: 4px solid #ffa500;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    .already-played h3 {
+      color: #ff8c00;
+      margin-bottom: 1rem;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .pairing-display {
+      background: var(--white);
+      padding: 1rem;
+      border-radius: 10px;
+      margin-top: 1rem;
+      border: 2px solid var(--lime);
+    }
+
+    .pairing-display .seat-pair {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 2rem;
+      margin: 1rem 0;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 900;
+    }
+
+    .pairing-display .seat-box {
+      background: var(--blue);
+      color: var(--white);
+      padding: 1rem 2rem;
+      border-radius: 10px;
+    }
+
+    .pairing-display .arrow {
+      color: var(--lime);
+      font-size: 2rem;
+    }
+
+    /* Sección de la ruleta */
     .container {
+      display: none; /* Oculta hasta que se valide el asiento */
       max-width: 1400px;
       margin: 2rem auto;
       padding: 0 2rem;
-      display: grid;
       grid-template-columns: 1fr 350px;
       gap: 2rem;
+    }
+
+    .container.active {
+      display: grid;
     }
 
     .wheel-section {
@@ -213,24 +352,6 @@
       cursor: not-allowed;
     }
 
-    .reload-btn {
-      background: var(--blue);
-      color: var(--white);
-      border: 2px solid var(--lime);
-      padding: 1rem 2rem;
-      border-radius: 12px;
-      font-family: 'Space Mono', monospace;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .reload-btn:hover {
-      background: var(--lime);
-      color: var(--blue);
-      transform: rotate(180deg);
-    }
-
     .sidebar {
       background: var(--white);
       border-radius: 20px;
@@ -280,51 +401,37 @@
       margin: 1rem 0;
     }
 
-    .winner-name {
-      font-size: 1.2rem;
+    .winner-snack {
+      font-size: 1.5rem;
       color: var(--blue);
       font-weight: 700;
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 10px;
     }
 
-    .history-item {
-      background: rgba(151, 215, 0, 0.1);
+    .current-seat-display {
+      background: rgba(16, 6, 159, 0.1);
       padding: 1rem;
       border-radius: 10px;
-      margin-bottom: 0.8rem;
-      border-left: 4px solid var(--blue);
+      margin-bottom: 1rem;
+      text-align: center;
     }
 
-    .history-item .seat {
+    .current-seat-display h4 {
+      color: var(--blue);
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .current-seat-display .seat {
       font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
       font-weight: 900;
       color: var(--blue);
-      font-size: 1.2rem;
     }
 
-    .history-item .name {
-      color: #666;
-      font-size: 0.9rem;
-      margin-top: 0.3rem;
-    }
-
-    .history-item .time {
-      color: #999;
-      font-size: 0.75rem;
-      margin-top: 0.3rem;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 3rem 1rem;
-      color: #999;
-    }
-
-    .empty-state .icon {
-      font-size: 4rem;
-      margin-bottom: 1rem;
-    }
-
-    /* Responsive */
     @media (max-width: 1200px) {
       .container {
         grid-template-columns: 1fr;
@@ -348,10 +455,6 @@
         margin-bottom: 1rem;
       }
 
-      .header h1 {
-        font-size: 1.8rem;
-      }
-
       .wheel-container {
         width: 350px;
         height: 350px;
@@ -362,9 +465,8 @@
         height: 300px;
       }
 
-      .spin-btn {
-        padding: 1rem 2rem;
-        font-size: 1rem;
+      .search-form {
+        flex-direction: column;
       }
     }
   </style>
@@ -376,8 +478,55 @@
     <p style="color: var(--lime); margin-top: 0.5rem;">Intercambio de Regalos - Día del Cariño ❤️</p>
   </div>
 
-  <div class="container">
+  <!-- Sección de búsqueda de asiento -->
+  <div class="search-section">
+    <div class="search-card">
+      <h2>🎫 Ingresa tu Número de Asiento</h2>
+      
+      <div class="info-message">
+        📌 Ingresa tu número de asiento para participar en el sorteo. Solo puedes participar una vez.
+      </div>
+
+      <form class="search-form" id="searchForm">
+        <input 
+          type="text" 
+          id="seatInput" 
+          class="search-input" 
+          placeholder="Ej: 001A, 25B" 
+          maxlength="4"
+          required
+        >
+        <button type="submit" class="search-btn">🎯 Participar</button>
+      </form>
+
+      <div class="error-message" id="errorMessage"></div>
+      
+      <div class="already-played" id="alreadyPlayed">
+        <h3>✅ Ya Participaste en el Sorteo</h3>
+        <div class="pairing-display">
+          <p style="margin-bottom: 1rem;"><strong>Tu emparejamiento:</strong></p>
+          <div class="seat-pair">
+            <div class="seat-box" id="yourSeat"></div>
+            <div class="arrow">→</div>
+            <div class="seat-box" id="assignedSeat"></div>
+          </div>
+          <p style="margin-top: 1rem; text-align: center;">
+            <strong>Snack asignado:</strong><br>
+            <span id="assignedSnack" style="font-size: 1.2rem;"></span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección de la ruleta (oculta hasta validar) -->
+  <div class="container" id="rouletteContainer">
     <div class="wheel-section">
+      <div class="current-seat-display">
+        <h4>Tu Asiento:</h4>
+        <div class="seat" id="currentSeatDisplay"></div>
+      </div>
+
       <div class="wheel-container">
         <div class="wheel-outer"></div>
         <div class="pointer"></div>
@@ -389,55 +538,118 @@
         <button class="spin-btn" id="spinBtn" onclick="spinWheel()">
           🎯 Girar Rueda
         </button>
-        <button class="reload-btn" onclick="loadParticipants()" title="Recargar participantes">
-          🔄
-        </button>
       </div>
     </div>
 
     <div class="sidebar">
-      <h2>🏆 Ganadores</h2>
+      <h2>🎊 Resultado del Sorteo</h2>
       
       <div class="winner-display" id="currentWinner">
-        <h3>🎊 ¡GANADOR!</h3>
+        <h3>🎉 ¡Asiento Asignado!</h3>
         <div class="winner-seat" id="winnerSeat"></div>
-        <div class="winner-name" id="winnerName"></div>
+        <div class="winner-snack" id="winnerSnack"></div>
       </div>
 
-      <div id="historyContainer">
-        <div class="empty-state">
-          <div class="icon">🎁</div>
-          <p>Aún no hay ganadores.<br>¡Gira la rueda para comenzar!</p>
+      <div id="pairingInfo" style="display: none; background: rgba(151, 215, 0, 0.1); padding: 1rem; border-radius: 10px; margin-top: 1rem;">
+        <p style="text-align: center; margin-bottom: 0.5rem;"><strong>Tu Emparejamiento:</strong></p>
+        <div style="font-family: 'Orbitron', sans-serif; font-size: 1.2rem; text-align: center; color: var(--blue); font-weight: 700;">
+          <span id="fromSeat"></span> → <span id="toSeat"></span>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    // Google Apps Script Web App URL - REEMPLAZAR CON TU URL
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRmNreRwto-gpZGuyjTlqy7G0AQDqy5X0hnTpDsmB8Ipp1C0WrnfEbHumKQk6bLsvn/exec';
+    // Google Apps Script Web App URL
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxiCLDXdrqarNoLYkTPT2Go3iVsRkjlE2o8wW3kbbBy5_bU22EPWFf_ew7hwUSSjR59WQ/exec';
 
     let participants = [];
+    let currentUserSeat = '';
     let isSpinning = false;
-    let winners = [];
+    let hasSpun = false;
 
     // Colors for wheel segments
     const colors = ['#10069F', '#97D700', '#1a0eb3', '#82b800'];
 
-    async function loadParticipants() {
+    // Manejar búsqueda de asiento
+    document.getElementById('searchForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const seatInput = document.getElementById('seatInput').value.toUpperCase().trim();
+      const errorMessage = document.getElementById('errorMessage');
+      const alreadyPlayed = document.getElementById('alreadyPlayed');
+      
+      // Validar formato
+      const seatPattern = /^\d{2,3}[A-Z]$/;
+      if (!seatPattern.test(seatInput)) {
+        errorMessage.textContent = '❌ Formato inválido. Usa: 001A, 25B, 67C';
+        errorMessage.style.display = 'block';
+        return;
+      }
+
+      errorMessage.style.display = 'none';
+      alreadyPlayed.style.display = 'none';
+
+      // Verificar si el asiento existe y si ya participó
+      const result = await checkSeatAndLoadParticipants(seatInput);
+      
+      if (!result.exists) {
+        errorMessage.textContent = '❌ Este asiento no está registrado en el sistema.';
+        errorMessage.style.display = 'block';
+        return;
+      }
+
+      if (result.alreadyPlayed) {
+        // Mostrar el emparejamiento anterior
+        document.getElementById('yourSeat').textContent = result.pairing.fromSeat;
+        document.getElementById('assignedSeat').textContent = result.pairing.toSeat;
+        document.getElementById('assignedSnack').textContent = result.pairing.snack;
+        alreadyPlayed.style.display = 'block';
+        return;
+      }
+
+      // Asiento válido y no ha participado - Mostrar ruleta
+      currentUserSeat = seatInput;
+      document.getElementById('currentSeatDisplay').textContent = currentUserSeat;
+      document.querySelector('.search-section').style.display = 'none';
+      document.getElementById('rouletteContainer').classList.add('active');
+      
+      // Cargar participantes excluyendo el asiento actual
+      await loadParticipants(currentUserSeat);
+    });
+
+    async function checkSeatAndLoadParticipants(seat) {
+      try {
+        const response = await fetch(SCRIPT_URL + '?action=checkSeat&seat=' + seat);
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Error:', error);
+        return { exists: false, alreadyPlayed: false };
+      }
+    }
+
+    async function loadParticipants(excludeSeat) {
       try {
         const response = await fetch(SCRIPT_URL + '?action=getAll');
         const data = await response.json();
         
         if (data.success && data.passengers.length > 0) {
-          participants = data.passengers.filter(p => !winners.includes(p.asiento));
+          // Filtrar: excluir el asiento actual y los que ya participaron
+          participants = data.passengers.filter(p => 
+            p.asiento !== excludeSeat && !p.alreadyPlayed
+          );
+          
+          if (participants.length === 0) {
+            alert('No hay más participantes disponibles para el sorteo.');
+            return;
+          }
+          
           createWheel();
-        } else {
-          alert('No hay participantes registrados aún.');
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('Error al cargar participantes. Intente nuevamente.');
+        alert('Error al cargar participantes.');
       }
     }
 
@@ -446,7 +658,7 @@
       wheel.innerHTML = '';
       
       if (participants.length === 0) {
-        wheel.innerHTML = '<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #999;">No hay más<br>participantes</div>';
+        wheel.innerHTML = '<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #999;">No hay<br>participantes</div>';
         document.getElementById('spinBtn').disabled = true;
         return;
       }
@@ -471,55 +683,76 @@
       document.getElementById('spinBtn').disabled = false;
     }
 
-    function spinWheel() {
-      if (isSpinning || participants.length === 0) return;
+    async function spinWheel() {
+      if (isSpinning || participants.length === 0 || hasSpun) return;
       
       isSpinning = true;
+      hasSpun = true;
       document.getElementById('spinBtn').disabled = true;
       document.getElementById('currentWinner').style.display = 'none';
 
       const wheel = document.getElementById('wheel');
-      const spins = 5 + Math.random() * 3; // 5-8 vueltas completas
+      const spins = 5 + Math.random() * 3;
       const extraDegrees = Math.random() * 360;
       const totalRotation = (spins * 360) + extraDegrees;
       
       wheel.style.transform = `rotate(${totalRotation}deg)`;
       wheel.classList.add('spinning');
 
-      setTimeout(() => {
+      setTimeout(async () => {
         const segmentAngle = 360 / participants.length;
         const normalizedRotation = totalRotation % 360;
         const winnerIndex = Math.floor((360 - normalizedRotation) / segmentAngle) % participants.length;
         const winner = participants[winnerIndex];
         
-        showWinner(winner);
-        addToHistory(winner);
+        await showWinner(winner);
         
-        // Remove winner from participants
-        winners.push(winner.asiento);
-        participants = participants.filter(p => p.asiento !== winner.asiento);
+        // Guardar el emparejamiento
+        await savePairing(currentUserSeat, winner.asiento, winner.snack);
         
         isSpinning = false;
         
-        // Recreate wheel without winner
-        setTimeout(() => {
-          wheel.classList.remove('spinning');
-          wheel.style.transform = 'rotate(0deg)';
-          createWheel();
-        }, 500);
+        // Mostrar confetti
+        for (let i = 0; i < 50; i++) {
+          createConfetti();
+        }
       }, 4000);
+    }
+
+    async function savePairing(fromSeat, toSeat, snack) {
+      try {
+        const pairingData = {
+          fromSeat: fromSeat,
+          toSeat: toSeat,
+          snack: snack,
+          timestamp: new Date().toISOString()
+        };
+
+        await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'savePairing',
+            ...pairingData
+          })
+        });
+
+        console.log('✅ Emparejamiento guardado:', pairingData);
+      } catch (error) {
+        console.error('Error al guardar emparejamiento:', error);
+      }
     }
 
     function showWinner(winner) {
       const winnerDisplay = document.getElementById('currentWinner');
+      const pairingInfo = document.getElementById('pairingInfo');
+      
       document.getElementById('winnerSeat').textContent = winner.asiento;
-      document.getElementById('winnerName').textContent = winner.nombre;
+      document.getElementById('winnerSnack').textContent = '🍫 ' + winner.snack;
       winnerDisplay.style.display = 'block';
 
-      // Confetti effect (simple version)
-      for (let i = 0; i < 50; i++) {
-        createConfetti();
-      }
+      document.getElementById('fromSeat').textContent = currentUserSeat;
+      document.getElementById('toSeat').textContent = winner.asiento;
+      pairingInfo.style.display = 'block';
     }
 
     function createConfetti() {
@@ -546,27 +779,12 @@
       animation.onfinish = () => confetti.remove();
     }
 
-    function addToHistory(winner) {
-      const container = document.getElementById('historyContainer');
-      
-      // Remove empty state
-      if (container.querySelector('.empty-state')) {
-        container.innerHTML = '';
-      }
-
-      const item = document.createElement('div');
-      item.className = 'history-item';
-      item.innerHTML = `
-        <div class="seat">${winner.asiento}</div>
-        <div class="name">${winner.nombre}</div>
-        <div class="time">${new Date().toLocaleTimeString('es-GT')}</div>
-      `;
-      
-      container.insertBefore(item, container.firstChild);
-    }
-
-    // Load participants on page load
-    window.addEventListener('load', loadParticipants);
+    // Auto-formatear input de asiento
+    document.getElementById('seatInput').addEventListener('input', function(e) {
+      let value = e.target.value.toUpperCase();
+      value = value.replace(/[^0-9A-Z]/g, '');
+      e.target.value = value;
+    });
   </script>
 </body>
 </html>
