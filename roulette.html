@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rueda del Cariño - Intercambio de Regalos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue: #10069F;
+      --lime: #97D700;
+      --white: #FFFFFF;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Space Mono', monospace;
+      background: linear-gradient(135deg, var(--blue) 0%, #1a0eb3 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .header {
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      padding: 1.5rem;
+      border-bottom: 3px solid var(--lime);
+      text-align: center;
+    }
+
+    .header h1 {
+      font-family: 'Orbitron', sans-serif;
+      color: var(--lime);
+      font-size: 2.5rem;
+      letter-spacing: 3px;
+      text-shadow: 0 0 20px rgba(151, 215, 0, 0.5);
+      margin-bottom: 0.5rem;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 1.5rem;
+      left: 2rem;
+      background: var(--lime);
+      color: var(--blue);
+      padding: 0.8rem 1.5rem;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(151, 215, 0, 0.4);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 2rem;
+    }
+
+    .wheel-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .wheel-container {
+      position: relative;
+      width: 600px;
+      height: 600px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wheel-outer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(151, 215, 0, 0.2) 0%, transparent 70%);
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 40px rgba(151, 215, 0, 0.3); }
+      50% { box-shadow: 0 0 80px rgba(151, 215, 0, 0.5); }
+    }
+
+    .wheel {
+      position: relative;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      border: 10px solid var(--lime);
+      overflow: hidden;
+      transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+      box-shadow: 0 0 0 15px var(--blue), 0 20px 60px rgba(0, 0, 0, 0.5);
+      background: var(--white);
+    }
+
+    .wheel.spinning {
+      transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+    }
+
+    .wheel-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      background: var(--blue);
+      border-radius: 50%;
+      border: 5px solid var(--lime);
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .pointer {
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 25px solid transparent;
+      border-right: 25px solid transparent;
+      border-top: 50px solid var(--lime);
+      z-index: 5;
+      filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
+    }
+
+    .pointer::after {
+      content: '▼';
+      position: absolute;
+      top: -45px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--blue);
+      font-size: 1.5rem;
+    }
+
+    .wheel-segment {
+      position: absolute;
+      width: 50%;
+      height: 50%;
+      transform-origin: 100% 100%;
+      overflow: hidden;
+    }
+
+    .wheel-segment-content {
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      transform-origin: 0% 0%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--white);
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .controls {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .spin-btn {
+      background: var(--lime);
+      color: var(--blue);
+      border: none;
+      padding: 1.2rem 3rem;
+      border-radius: 15px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 900;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 30px rgba(151, 215, 0, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .spin-btn:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(151, 215, 0, 0.6);
+    }
+
+    .spin-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .reload-btn {
+      background: var(--blue);
+      color: var(--white);
+      border: 2px solid var(--lime);
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .reload-btn:hover {
+      background: var(--lime);
+      color: var(--blue);
+      transform: rotate(180deg);
+    }
+
+    .sidebar {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .sidebar h2 {
+      font-family: 'Orbitron', sans-serif;
+      color: var(--blue);
+      margin-bottom: 1.5rem;
+      font-size: 1.3rem;
+      text-align: center;
+    }
+
+    .winner-display {
+      display: none;
+      background: linear-gradient(135deg, var(--lime) 0%, #82b800 100%);
+      padding: 2rem;
+      border-radius: 15px;
+      margin-bottom: 2rem;
+      text-align: center;
+      animation: winner-pop 0.5s ease-out;
+    }
+
+    @keyframes winner-pop {
+      0% { transform: scale(0.8); opacity: 0; }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .winner-display h3 {
+      color: var(--blue);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .winner-seat {
+      font-size: 3rem;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      color: var(--blue);
+      text-shadow: 2px 2px 0 rgba(16, 6, 159, 0.2);
+      margin: 1rem 0;
+    }
+
+    .winner-name {
+      font-size: 1.2rem;
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .history-item {
+      background: rgba(151, 215, 0, 0.1);
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 0.8rem;
+      border-left: 4px solid var(--blue);
+    }
+
+    .history-item .seat {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      color: var(--blue);
+      font-size: 1.2rem;
+    }
+
+    .history-item .name {
+      color: #666;
+      font-size: 0.9rem;
+      margin-top: 0.3rem;
+    }
+
+    .history-item .time {
+      color: #999;
+      font-size: 0.75rem;
+      margin-top: 0.3rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #999;
+    }
+
+    .empty-state .icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+
+      .wheel-container {
+        width: 500px;
+        height: 500px;
+      }
+
+      .wheel {
+        width: 400px;
+        height: 400px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .back-btn {
+        position: static;
+        display: inline-block;
+        margin-bottom: 1rem;
+      }
+
+      .header h1 {
+        font-size: 1.8rem;
+      }
+
+      .wheel-container {
+        width: 350px;
+        height: 350px;
+      }
+
+      .wheel {
+        width: 300px;
+        height: 300px;
+      }
+
+      .spin-btn {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="admin.html" class="back-btn">← Panel de Control</a>
+    <h1>🎡 Rueda del Cariño</h1>
+    <p style="color: var(--lime); margin-top: 0.5rem;">Intercambio de Regalos - Día del Cariño ❤️</p>
+  </div>
+
+  <div class="container">
+    <div class="wheel-section">
+      <div class="wheel-container">
+        <div class="wheel-outer"></div>
+        <div class="pointer"></div>
+        <div id="wheel" class="wheel"></div>
+        <div class="wheel-center">🎁</div>
+      </div>
+
+      <div class="controls">
+        <button class="spin-btn" id="spinBtn" onclick="spinWheel()">
+          🎯 Girar Rueda
+        </button>
+        <button class="reload-btn" onclick="loadParticipants()" title="Recargar participantes">
+          🔄
+        </button>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <h2>🏆 Ganadores</h2>
+      
+      <div class="winner-display" id="currentWinner">
+        <h3>🎊 ¡GANADOR!</h3>
+        <div class="winner-seat" id="winnerSeat"></div>
+        <div class="winner-name" id="winnerName"></div>
+      </div>
+
+      <div id="historyContainer">
+        <div class="empty-state">
+          <div class="icon">🎁</div>
+          <p>Aún no hay ganadores.<br>¡Gira la rueda para comenzar!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Google Apps Script Web App URL - REEMPLAZAR CON TU URL
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRmNreRwto-gpZGuyjTlqy7G0AQDqy5X0hnTpDsmB8Ipp1C0WrnfEbHumKQk6bLsvn/exec';
+
+    let participants = [];
+    let isSpinning = false;
+    let winners = [];
+
+    // Colors for wheel segments
+    const colors = ['#10069F', '#97D700', '#1a0eb3', '#82b800'];
+
+    async function loadParticipants() {
+      try {
+        const response = await fetch(SCRIPT_URL + '?action=getAll');
+        const data = await response.json();
+        
+        if (data.success && data.passengers.length > 0) {
+          participants = data.passengers.filter(p => !winners.includes(p.asiento));
+          createWheel();
+        } else {
+          alert('No hay participantes registrados aún.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al cargar participantes. Intente nuevamente.');
+      }
+    }
+
+    function createWheel() {
+      const wheel = document.getElementById('wheel');
+      wheel.innerHTML = '';
+      
+      if (participants.length === 0) {
+        wheel.innerHTML = '<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #999;">No hay más<br>participantes</div>';
+        document.getElementById('spinBtn').disabled = true;
+        return;
+      }
+
+      const segmentAngle = 360 / participants.length;
+
+      participants.forEach((participant, index) => {
+        const segment = document.createElement('div');
+        segment.className = 'wheel-segment';
+        segment.style.transform = `rotate(${segmentAngle * index}deg) skewY(${90 - segmentAngle}deg)`;
+        
+        const content = document.createElement('div');
+        content.className = 'wheel-segment-content';
+        content.style.transform = `skewY(${-(90 - segmentAngle)}deg) rotate(${segmentAngle / 2}deg)`;
+        content.style.background = colors[index % colors.length];
+        content.textContent = participant.asiento;
+        
+        segment.appendChild(content);
+        wheel.appendChild(segment);
+      });
+
+      document.getElementById('spinBtn').disabled = false;
+    }
+
+    function spinWheel() {
+      if (isSpinning || participants.length === 0) return;
+      
+      isSpinning = true;
+      document.getElementById('spinBtn').disabled = true;
+      document.getElementById('currentWinner').style.display = 'none';
+
+      const wheel = document.getElementById('wheel');
+      const spins = 5 + Math.random() * 3; // 5-8 vueltas completas
+      const extraDegrees = Math.random() * 360;
+      const totalRotation = (spins * 360) + extraDegrees;
+      
+      wheel.style.transform = `rotate(${totalRotation}deg)`;
+      wheel.classList.add('spinning');
+
+      setTimeout(() => {
+        const segmentAngle = 360 / participants.length;
+        const normalizedRotation = totalRotation % 360;
+        const winnerIndex = Math.floor((360 - normalizedRotation) / segmentAngle) % participants.length;
+        const winner = participants[winnerIndex];
+        
+        showWinner(winner);
+        addToHistory(winner);
+        
+        // Remove winner from participants
+        winners.push(winner.asiento);
+        participants = participants.filter(p => p.asiento !== winner.asiento);
+        
+        isSpinning = false;
+        
+        // Recreate wheel without winner
+        setTimeout(() => {
+          wheel.classList.remove('spinning');
+          wheel.style.transform = 'rotate(0deg)';
+          createWheel();
+        }, 500);
+      }, 4000);
+    }
+
+    function showWinner(winner) {
+      const winnerDisplay = document.getElementById('currentWinner');
+      document.getElementById('winnerSeat').textContent = winner.asiento;
+      document.getElementById('winnerName').textContent = winner.nombre;
+      winnerDisplay.style.display = 'block';
+
+      // Confetti effect (simple version)
+      for (let i = 0; i < 50; i++) {
+        createConfetti();
+      }
+    }
+
+    function createConfetti() {
+      const confetti = document.createElement('div');
+      confetti.style.position = 'fixed';
+      confetti.style.left = Math.random() * window.innerWidth + 'px';
+      confetti.style.top = '-20px';
+      confetti.style.width = '10px';
+      confetti.style.height = '10px';
+      confetti.style.background = Math.random() > 0.5 ? '#10069F' : '#97D700';
+      confetti.style.borderRadius = '50%';
+      confetti.style.pointerEvents = 'none';
+      confetti.style.zIndex = '10000';
+      document.body.appendChild(confetti);
+
+      const animation = confetti.animate([
+        { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
+        { transform: `translateY(${window.innerHeight + 20}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+      ], {
+        duration: 2000 + Math.random() * 1000,
+        easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+      });
+
+      animation.onfinish = () => confetti.remove();
+    }
+
+    function addToHistory(winner) {
+      const container = document.getElementById('historyContainer');
+      
+      // Remove empty state
+      if (container.querySelector('.empty-state')) {
+        container.innerHTML = '';
+      }
+
+      const item = document.createElement('div');
+      item.className = 'history-item';
+      item.innerHTML = `
+        <div class="seat">${winner.asiento}</div>
+        <div class="name">${winner.nombre}</div>
+        <div class="time">${new Date().toLocaleTimeString('es-GT')}</div>
+      `;
+      
+      container.insertBefore(item, container.firstChild);
+    }
+
+    // Load participants on page load
+    window.addEventListener('load', loadParticipants);
+  </script>
+</body>
+</html>

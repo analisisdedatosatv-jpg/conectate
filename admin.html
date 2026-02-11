@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Control - Aeropuerto del Cariño</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue: #10069F;
+      --lime: #97D700;
+      --white: #FFFFFF;
+      --light-gray: #F5F5F5;
+      --dark-gray: #333;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Space Mono', monospace;
+      background: linear-gradient(135deg, var(--blue) 0%, #1a0eb3 100%);
+      min-height: 100vh;
+    }
+
+    .header {
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      border-bottom: 3px solid var(--lime);
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-family: 'Orbitron', sans-serif;
+      color: var(--lime);
+      font-size: 2rem;
+      letter-spacing: 2px;
+    }
+
+    .back-btn {
+      background: var(--lime);
+      color: var(--blue);
+      padding: 0.8rem 1.5rem;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(151, 215, 0, 0.4);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--white);
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      border-top: 5px solid var(--lime);
+      animation: float-in 0.6s ease-out;
+    }
+
+    @keyframes float-in {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .stat-card h3 {
+      color: var(--blue);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      letter-spacing: 1px;
+    }
+
+    .stat-card .number {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--lime);
+      line-height: 1;
+    }
+
+    .main-panel {
+      background: var(--white);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .panel-header {
+      background: var(--blue);
+      color: var(--white);
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-header h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+    }
+
+    .btn-roulette {
+      background: var(--lime);
+      color: var(--blue);
+      padding: 0.8rem 2rem;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+
+    .btn-roulette:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 20px rgba(151, 215, 0, 0.4);
+    }
+
+    .table-container {
+      padding: 2rem;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: var(--light-gray);
+    }
+
+    th {
+      padding: 1rem;
+      text-align: left;
+      color: var(--blue);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      border-bottom: 2px solid var(--lime);
+    }
+
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    tbody tr:hover {
+      background: rgba(151, 215, 0, 0.05);
+    }
+
+    .seat-badge {
+      display: inline-block;
+      background: var(--blue);
+      color: var(--white);
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .sede-tag {
+      background: var(--lime);
+      color: var(--blue);
+      padding: 0.3rem 0.8rem;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    .bus-badge {
+      padding: 0.3rem 0.8rem;
+      border-radius: 15px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    .bus-badge.si {
+      background: var(--lime);
+      color: var(--blue);
+    }
+
+    .bus-badge.no {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(16, 6, 159, 0.9);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loading-content {
+      text-align: center;
+      color: var(--white);
+    }
+
+    .spinner {
+      width: 80px;
+      height: 80px;
+      border: 8px solid rgba(151, 215, 0, 0.2);
+      border-top-color: var(--lime);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .table-container {
+        padding: 1rem;
+      }
+
+      th, td {
+        padding: 0.7rem 0.5rem;
+        font-size: 0.85rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-content">
+      <h1>⚙️ Panel de Control</h1>
+      <a href="index.html" class="back-btn">← Volver al Check-in</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>✈️ Total Pasajeros</h3>
+        <div class="number" id="totalPassengers">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>💺 Asientos Asignados</h3>
+        <div class="number" id="totalSeats">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>🏢 Sedes Activas</h3>
+        <div class="number" id="activeSedes">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>🚌 Necesitan Bus</h3>
+        <div class="number" id="needBus">0</div>
+      </div>
+    </div>
+
+    <div class="main-panel">
+      <div class="panel-header">
+        <h2>📋 Lista de Pasajeros Registrados</h2>
+        <button class="btn-roulette" onclick="window.location.href='roulette.html'">
+          🎡 Ir a Rueda del Cariño
+        </button>
+      </div>
+      
+      <div class="table-container">
+        <table id="passengersTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nombre del Pasajero</th>
+              <th>Terminal/Sede</th>
+              <th>Asiento</th>
+              <th>Teléfono</th>
+              <th>Bus</th>
+              <th>Fecha de Check-in</th>
+            </tr>
+          </thead>
+          <tbody id="passengersBody">
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 3rem; color: #999;">
+                Cargando datos... ✈️
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <p style="font-size: 1.2rem; font-family: 'Orbitron', sans-serif;">Cargando datos del sistema...</p>
+    </div>
+  </div>
+
+  <script>
+    // Google Apps Script Web App URL - REEMPLAZAR CON TU URL
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRmNreRwto-gpZGuyjTlqy7G0AQDqy5X0hnTpDsmB8Ipp1C0WrnfEbHumKQk6bLsvn/exec';
+
+    async function loadPassengers() {
+      const loadingOverlay = document.getElementById('loadingOverlay');
+      loadingOverlay.style.display = 'flex';
+
+      try {
+        const response = await fetch(SCRIPT_URL + '?action=getAll');
+        const data = await response.json();
+
+        if (data.success) {
+          displayPassengers(data.passengers);
+          updateStats(data.passengers);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('passengersBody').innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 2rem; color: red;">
+              ❌ Error al cargar los datos. Por favor recargue la página.
+            </td>
+          </tr>
+        `;
+      } finally {
+        loadingOverlay.style.display = 'none';
+      }
+    }
+
+    function displayPassengers(passengers) {
+      const tbody = document.getElementById('passengersBody');
+      
+      if (passengers.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 2rem; color: #999;">
+              No hay pasajeros registrados aún. 📭
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = passengers.map((p, index) => `
+        <tr>
+          <td>${index + 1}</td>
+          <td><strong>${p.nombre}</strong></td>
+          <td><span class="sede-tag">${p.sede}</span></td>
+          <td><span class="seat-badge">${p.asiento}</span></td>
+          <td>${p.telefono}</td>
+          <td><span class="bus-badge ${p.bus === 'SI' ? 'si' : 'no'}">${p.bus === 'SI' ? '🚌 SÍ' : '🚗 NO'}</span></td>
+          <td>${formatDate(p.timestamp)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function updateStats(passengers) {
+      document.getElementById('totalPassengers').textContent = passengers.length;
+      document.getElementById('totalSeats').textContent = passengers.length;
+      
+      const uniqueSedes = new Set(passengers.map(p => p.sede));
+      document.getElementById('activeSedes').textContent = uniqueSedes.size;
+      
+      const busCount = passengers.filter(p => p.bus === 'SI').length;
+      document.getElementById('needBus').textContent = busCount;
+    }
+
+    function formatDate(timestamp) {
+      const date = new Date(timestamp);
+      return date.toLocaleDateString('es-GT', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    // Load data on page load
+    window.addEventListener('load', loadPassengers);
+
+    // Refresh every 30 seconds
+    setInterval(loadPassengers, 30000);
+  </script>
+</body>
+</html>
