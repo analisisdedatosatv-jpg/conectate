@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -224,6 +225,16 @@
       color: #c62828;
     }
 
+    .snack-badge {
+      padding: 0.3rem 0.8rem;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: inline-block;
+      background: rgba(151, 215, 0, 0.2);
+      color: var(--blue);
+    }
+
     .loading-overlay {
       display: none;
       position: fixed;
@@ -324,12 +335,13 @@
               <th>Asiento</th>
               <th>Teléfono</th>
               <th>Bus</th>
+              <th>Menú/Snack</th>
               <th>Fecha de Check-in</th>
             </tr>
           </thead>
           <tbody id="passengersBody">
             <tr>
-              <td colspan="7" style="text-align: center; padding: 3rem; color: #999;">
+              <td colspan="8" style="text-align: center; padding: 3rem; color: #999;">
                 Cargando datos... ✈️
               </td>
             </tr>
@@ -348,7 +360,7 @@
 
   <script>
     // Google Apps Script Web App URL - REEMPLAZAR CON TU URL
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRmNreRwto-gpZGuyjTlqy7G0AQDqy5X0hnTpDsmB8Ipp1C0WrnfEbHumKQk6bLsvn/exec';
+    const SCRIPT_URL = 'TU_URL_DE_GOOGLE_APPS_SCRIPT_AQUI';
 
     async function loadPassengers() {
       const loadingOverlay = document.getElementById('loadingOverlay');
@@ -366,7 +378,7 @@
         console.error('Error:', error);
         document.getElementById('passengersBody').innerHTML = `
           <tr>
-            <td colspan="7" style="text-align: center; padding: 2rem; color: red;">
+            <td colspan="8" style="text-align: center; padding: 2rem; color: red;">
               ❌ Error al cargar los datos. Por favor recargue la página.
             </td>
           </tr>
@@ -382,7 +394,7 @@
       if (passengers.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="7" style="text-align: center; padding: 2rem; color: #999;">
+            <td colspan="8" style="text-align: center; padding: 2rem; color: #999;">
               No hay pasajeros registrados aún. 📭
             </td>
           </tr>
@@ -398,6 +410,7 @@
           <td><span class="seat-badge">${p.asiento}</span></td>
           <td>${p.telefono}</td>
           <td><span class="bus-badge ${p.bus === 'SI' ? 'si' : 'no'}">${p.bus === 'SI' ? '🚌 SÍ' : '🚗 NO'}</span></td>
+          <td><span class="snack-badge">${p.snack || 'N/A'}</span></td>
           <td>${formatDate(p.timestamp)}</td>
         </tr>
       `).join('');
