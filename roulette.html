@@ -496,7 +496,7 @@
       <h2>🎫 Ingresa tu Número de Asiento</h2>
       
       <div class="info-message">
-        📌 Ingresa tu número de asiento para participar en el sorteo. Solo puedes participar una vez y cada asiento solo puede ser asignado una vez.
+        📌 Ingresa tu número de asiento (2 dígitos + letra). Ejemplo: 31B, 54C, 01A. Solo puedes participar una vez.
       </div>
 
       <form class="search-form" id="searchForm">
@@ -504,8 +504,8 @@
           type="text" 
           id="seatInput" 
           class="search-input" 
-          placeholder="Ej: 001A, 25B" 
-          maxlength="4"
+          placeholder="Ej: 31B, 54C, 01A" 
+          maxlength="3"
           required
         >
         <button type="submit" class="search-btn">🎯 Participar</button>
@@ -581,7 +581,7 @@
 
   <script>
     // Google Apps Script Web App URL
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyc0zbg90uXLlrVK0kbSsB8N0HmKfuwNKfHW4m8t9zEj5GwuW3jJ2-OSZXo8kkeu1BXWQ/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwPn0HS_AK4K3sei-wzQ26nxUC-VGv2VcBl6R8mHLHy_5QO3ke2ioL1x3GNa-Z87zLbag/exec';
 
     let availableSeats = []; // Solo asientos que NO han sido asignados
     let currentUserSeat = '';
@@ -598,10 +598,10 @@
       const errorMessage = document.getElementById('errorMessage');
       const alreadyPlayed = document.getElementById('alreadyPlayed');
       
-      // Validar formato
-      const seatPattern = /^\d{2,3}[A-Z]$/;
+      // Validar formato: SOLO 2 dígitos + letra
+      const seatPattern = /^\d{2}[A-Z]$/;
       if (!seatPattern.test(seatInput)) {
-        errorMessage.textContent = '❌ Formato inválido. Usa: 001A, 25B, 67C';
+        errorMessage.textContent = '❌ Formato inválido. Use: 31B, 54C, 01A (2 dígitos + letra)';
         errorMessage.style.display = 'block';
         return;
       }
