@@ -196,7 +196,7 @@
 
     /* Sección de la ruleta */
     .container {
-      display: none; /* Oculta hasta que se valide el asiento */
+      display: none;
       max-width: 1400px;
       margin: 2rem auto;
       padding: 0 2rem;
@@ -432,6 +432,18 @@
       color: var(--blue);
     }
 
+    .stats-info {
+      background: rgba(151, 215, 0, 0.1);
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .stats-info strong {
+      color: var(--blue);
+    }
+
     @media (max-width: 1200px) {
       .container {
         grid-template-columns: 1fr;
@@ -484,7 +496,7 @@
       <h2>🎫 Ingresa tu Número de Asiento</h2>
       
       <div class="info-message">
-        📌 Ingresa tu número de asiento para participar en el sorteo. Solo puedes participar una vez.
+        📌 Ingresa tu número de asiento para participar en el sorteo. Solo puedes participar una vez y cada asiento solo puede ser asignado una vez.
       </div>
 
       <form class="search-form" id="searchForm">
@@ -527,6 +539,10 @@
         <div class="seat" id="currentSeatDisplay"></div>
       </div>
 
+      <div class="stats-info" id="statsInfo">
+        <strong>Asientos disponibles:</strong> <span id="availableCount">0</span>
+      </div>
+
       <div class="wheel-container">
         <div class="wheel-outer"></div>
         <div class="pointer"></div>
@@ -555,20 +571,23 @@
         <div style="font-family: 'Orbitron', sans-serif; font-size: 1.2rem; text-align: center; color: var(--blue); font-weight: 700;">
           <span id="fromSeat"></span> → <span id="toSeat"></span>
         </div>
+        <p style="text-align: center; margin-top: 1rem; font-size: 0.9rem;">
+          Debes dar tu regalo a <strong id="toSeatRepeat"></strong><br>
+          y llevar: <strong id="snackRepeat"></strong>
+        </p>
       </div>
     </div>
   </div>
 
   <script>
     // Google Apps Script Web App URL
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxH8ooBSQq8gdu6y9UlBJyWaR-4ULpsH_0kOZ_atF0w0LQRQJdTWIeeNVwhS_d_It_PFQ/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxiCLDXdrqarNoLYkTPT2Go3iVsRkjlE2o8wW3kbbBy5_bU22EPWFf_ew7hwUSSjR59WQ/exec';
 
-    let participants = [];
+    let availableSeats = []; // Solo asientos que NO han sido asignados
     let currentUserSeat = '';
     let isSpinning = false;
     let hasSpun = false;
 
-    // Colors for wheel segments
     const colors = ['#10069F', '#97D700', '#1a0eb3', '#82b800'];
 
     // Manejar búsqueda de asiento
@@ -591,7 +610,7 @@
       alreadyPlayed.style.display = 'none';
 
       // Verificar si el asiento existe y si ya participó
-      const result = await checkSeatAndLoadParticipants(seatInput);
+      const result = await checkSeatStatus(seatInput);
       
       if (!result.exists) {
         errorMessage.textContent = '❌ Este asiento no está registrado en el sistema.';
@@ -608,17 +627,25 @@
         return;
       }
 
-      // Asiento válido y no ha participado - Mostrar ruleta
+      // Asiento válido y no ha participado - Cargar asientos disponibles
       currentUserSeat = seatInput;
+      await loadAvailableSeats(currentUserSeat);
+      
+      if (availableSeats.length === 0) {
+        errorMessage.textContent = '❌ No hay más asientos disponibles para asignar.';
+        errorMessage.style.display = 'block';
+        return;
+      }
+
+      // Mostrar ruleta
       document.getElementById('currentSeatDisplay').textContent = currentUserSeat;
+      document.getElementById('availableCount').textContent = availableSeats.length;
       document.querySelector('.search-section').style.display = 'none';
       document.getElementById('rouletteContainer').classList.add('active');
-      
-      // Cargar participantes excluyendo el asiento actual
-      await loadParticipants(currentUserSeat);
+      createWheel();
     });
 
-    async function checkSeatAndLoadParticipants(seat) {
+    async function checkSeatStatus(seat) {
       try {
         const response = await fetch(SCRIPT_URL + '?action=checkSeat&seat=' + seat);
         const data = await response.json();
@@ -629,27 +656,18 @@
       }
     }
 
-    async function loadParticipants(excludeSeat) {
+    async function loadAvailableSeats(excludeSeat) {
       try {
-        const response = await fetch(SCRIPT_URL + '?action=getAll');
+        const response = await fetch(SCRIPT_URL + '?action=getAvailableSeats&excludeSeat=' + excludeSeat);
         const data = await response.json();
         
-        if (data.success && data.passengers.length > 0) {
-          // Filtrar: excluir el asiento actual y los que ya participaron
-          participants = data.passengers.filter(p => 
-            p.asiento !== excludeSeat && !p.alreadyPlayed
-          );
-          
-          if (participants.length === 0) {
-            alert('No hay más participantes disponibles para el sorteo.');
-            return;
-          }
-          
-          createWheel();
+        if (data.success) {
+          availableSeats = data.availableSeats;
+          console.log('✅ Asientos disponibles:', availableSeats.length);
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('Error al cargar participantes.');
+        alert('Error al cargar asientos disponibles.');
       }
     }
 
@@ -657,15 +675,15 @@
       const wheel = document.getElementById('wheel');
       wheel.innerHTML = '';
       
-      if (participants.length === 0) {
-        wheel.innerHTML = '<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #999;">No hay<br>participantes</div>';
+      if (availableSeats.length === 0) {
+        wheel.innerHTML = '<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #999;">No hay<br>asientos<br>disponibles</div>';
         document.getElementById('spinBtn').disabled = true;
         return;
       }
 
-      const segmentAngle = 360 / participants.length;
+      const segmentAngle = 360 / availableSeats.length;
 
-      participants.forEach((participant, index) => {
+      availableSeats.forEach((seat, index) => {
         const segment = document.createElement('div');
         segment.className = 'wheel-segment';
         segment.style.transform = `rotate(${segmentAngle * index}deg) skewY(${90 - segmentAngle}deg)`;
@@ -674,7 +692,7 @@
         content.className = 'wheel-segment-content';
         content.style.transform = `skewY(${-(90 - segmentAngle)}deg) rotate(${segmentAngle / 2}deg)`;
         content.style.background = colors[index % colors.length];
-        content.textContent = participant.asiento;
+        content.textContent = seat.asiento;
         
         segment.appendChild(content);
         wheel.appendChild(segment);
@@ -684,7 +702,7 @@
     }
 
     async function spinWheel() {
-      if (isSpinning || participants.length === 0 || hasSpun) return;
+      if (isSpinning || availableSeats.length === 0 || hasSpun) return;
       
       isSpinning = true;
       hasSpun = true;
@@ -700,10 +718,10 @@
       wheel.classList.add('spinning');
 
       setTimeout(async () => {
-        const segmentAngle = 360 / participants.length;
+        const segmentAngle = 360 / availableSeats.length;
         const normalizedRotation = totalRotation % 360;
-        const winnerIndex = Math.floor((360 - normalizedRotation) / segmentAngle) % participants.length;
-        const winner = participants[winnerIndex];
+        const winnerIndex = Math.floor((360 - normalizedRotation) / segmentAngle) % availableSeats.length;
+        const winner = availableSeats[winnerIndex];
         
         await showWinner(winner);
         
@@ -712,7 +730,7 @@
         
         isSpinning = false;
         
-        // Mostrar confetti
+        // Confetti
         for (let i = 0; i < 50; i++) {
           createConfetti();
         }
@@ -752,6 +770,8 @@
 
       document.getElementById('fromSeat').textContent = currentUserSeat;
       document.getElementById('toSeat').textContent = winner.asiento;
+      document.getElementById('toSeatRepeat').textContent = winner.asiento;
+      document.getElementById('snackRepeat').textContent = winner.snack;
       pairingInfo.style.display = 'block';
     }
 
